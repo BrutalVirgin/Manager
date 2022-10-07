@@ -6,6 +6,7 @@ export const UserSchema = new mongoose.Schema<UserDo>({
     email:        { type: String, required: true },
     passwordHash: { type: String, required: true },
     passwordSalt: { type: String, required: true },
+    subordinates: { type: [String] },
     role:         { type: String, enum: Object.values(EUsersRole), required: true },
 
 }, {

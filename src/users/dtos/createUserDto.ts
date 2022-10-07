@@ -1,6 +1,7 @@
 import {
+    IsArray,
     IsEmail, IsEnum,
-    IsNotEmpty,
+    IsNotEmpty, IsOptional,
     IsString, MinLength,
 } from 'class-validator';
 import { EUsersRole } from '../../interfaces/interfaces';
@@ -18,4 +19,8 @@ export class CreateUserDto {
     @IsNotEmpty()
     @MinLength(8)
     password: string;
+
+    @IsArray()
+    @IsOptional()
+    subordinates?: string[];
 }

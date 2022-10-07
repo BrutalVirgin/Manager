@@ -1,7 +1,7 @@
 import { EUsersRole } from '../interfaces/interfaces';
 import { Exclude } from 'class-transformer';
 import { CreateUserDto } from './dtos/createUserDto';
-import crypto from 'node:crypto';
+const crypto = require('crypto');
 
 export class UserEntity {
     public _id: string | null;
@@ -12,6 +12,7 @@ export class UserEntity {
     public passwordHash: string;
     @Exclude()
     public passwordSalt: string;
+    public subordinates?: string[] | null;
     public createdAt: Date;
     public updatedAt: Date;
 
@@ -24,15 +25,16 @@ export class UserEntity {
         this.passwordHash = init.passwordHash || null;
         this.passwordSalt = init.passwordSalt || null;
         this.role = init.role || null;
-
+        this.subordinates = init.subordinates || null;
         this.createdAt = init.createdAt || null;
         this.updatedAt = init.updatedAt || null;
     }
 
     static register (user: CreateUserDto): UserEntity {
         const newUser = new UserEntity({
-            email: user.email,
-            role:  user.role,
+            email:        user.email,
+            subordinates: user.subordinates ? user.subordinates : null,
+            role:         user.role,
         });
 
         newUser.setPassword(user.password);
@@ -40,7 +42,7 @@ export class UserEntity {
     }
 
     public setPassword (newPass: string): void {
-        this.passwordSalt = crypto.randomBytes(120).toString('hex');
+        this.passwordSalt = crypto.randomBytes(16).toString('hex');
         const saltWithMagic = UserEntity._hash(this.passwordSalt, process.env.MAGIC_SALT);
         this.passwordHash = UserEntity._hash(newPass, saltWithMagic);
     }
