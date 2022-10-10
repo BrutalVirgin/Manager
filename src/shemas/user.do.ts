@@ -9,13 +9,13 @@ export class UserDo {
      subordinates?: string[] | null;
      role:          EUsersRole;
 
-    constructor (props: Partial<UserDo>) {
-        this._id = props._id || null;
-        this.email = props.email || null;
-        this.passwordHash = props.passwordHash || null;
-        this.passwordSalt = props.passwordSalt || null;
-        this.subordinates = props.subordinates || null;
-        this.role = props.role || null;
+    constructor (init: Partial<UserDo>) {
+        this._id = init._id || null;
+        this.email = init.email || null;
+        this.passwordHash = init.passwordHash || null;
+        this.passwordSalt = init.passwordSalt || null;
+        this.subordinates = init.subordinates || null;
+        this.role = init.role || null;
 
     }
 }

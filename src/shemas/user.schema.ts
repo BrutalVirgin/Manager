@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose from 'mongoose';
 import { UserDo } from './user.do';
 import { EUsersRole } from '../interfaces/interfaces';
 

@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '../users/user.repository';
 import { UserCredsDto } from '../users/dtos/userCredsDto';
-import { IAuth, IAuthJwt } from '../interfaces/interfaces';
+import { IAuth } from '../interfaces/interfaces';
 import { UserEntity } from '../users/user.entity';
 import * as jwt from 'jsonwebtoken';
 
@@ -45,8 +45,7 @@ export class AuthService {
             return jwt.verify(token, process.env.JWT_PRIVATE_KEY);
         }
         catch (error) {
-            const message = 'Token Error: ' + error.message;
-            throw new UnauthorizedException(message);
+            throw new UnauthorizedException(error.message);
         }
     }
 }

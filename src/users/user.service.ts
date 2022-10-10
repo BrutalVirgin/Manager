@@ -4,14 +4,15 @@ import { UserRepository } from './user.repository';
 import { UserEntity } from './user.entity';
 import { EUsersRole } from '../interfaces/interfaces';
 import { Types } from 'mongoose';
+import { UserListOutDto } from './dtos/userListOutDto';
+import { ChangeBossDto } from './dtos/changeBossDto';
 
 
 @Injectable()
 export class UserService {
     constructor (
 private readonly userRepository: UserRepository,
-    ) {
-    }
+    ) {}
 
     async create (data: CreateUserDto) : Promise<UserEntity> {
            const user = await this.userRepository.findOne({ email: data.email });
@@ -48,14 +49,54 @@ private readonly userRepository: UserRepository,
       }
     }
 
+    async getUsers (userId:string) : Promise<UserListOutDto> {
+        const user = await this.userRepository.findOne({ _id: userId });
+        let users;
+        switch (user.role) {
+            case EUsersRole.user: {
+                users = [user];
+                break;
+            }
+            case EUsersRole.boss: {
+                const usersIds = [...user.subordinates, userId];
+                users =  await this.userRepository.findUsersByBoss(usersIds);
+                break;
+            }
+            case EUsersRole.administrator: {
+                 users = await this.userRepository.findAll();
+            }
+        }
+        return  users.map((data) => {
+            return new UserListOutDto({
+                _id:          data._id,
+                email:        data.email,
+                role:         data.role,
+                subordinates: data.subordinates || null,
+                createdAt:    data.createdAt,
+                updatedAt:    data.updatedAt,
+            });
+        });
+    }
 
-    // async createUser (data: CreateUserDto) : Promise<UserEntity> {
-    // if (data.subordinates) {
-    //     throw new HttpException('User cannot have subordinates', HttpStatus.BAD_REQUEST);
-    // }
-    // else {
-    //     const newUser = UserEntity.register(data);
-    //     return this.userRepository.create(newUser);
-    // }
-    // }
+    async changeBoss (userId:string, data: ChangeBossDto) : Promise<UserEntity>  {
+        const user = await this.userRepository.findOne({ _id: userId });
+        const newBoss = await this.userRepository.findOne({ _id: data.newBossId });
+
+        if (user.role !== EUsersRole.boss) {
+            throw new HttpException('Only the boss can change subordinates', HttpStatus.NOT_FOUND);
+        }
+        if (!newBoss) {
+            throw new HttpException(`Boss with id: ${data.newBossId} not found`, HttpStatus.NOT_FOUND);
+        }
+        if (!user.subordinates.includes(data.subordinateId)) {
+            throw new HttpException('The boss can only change bosses for his subordinates or subordinates not found', HttpStatus.BAD_REQUEST);
+        }
+        if (newBoss.subordinates.includes(data.subordinateId)) {
+            throw new HttpException('The subordinate is already under the supervision of the new boss', HttpStatus.BAD_REQUEST);
+        }
+
+        newBoss.subordinates.push(data.subordinateId);
+        await this.userRepository.update(newBoss);
+        return newBoss;
+    }
 }

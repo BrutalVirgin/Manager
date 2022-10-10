@@ -16,19 +16,16 @@ export class JwtAuthGuard implements CanActivate {
         const req = context.switchToHttp().getRequest();
 
         const token = req.headers.authorization;
-
         if (!token) {
             throw new UnauthorizedException('No Authorization token provided');
         }
 
         const payload = await this.authService.validateToken(token) as IAuthJwt;
-
         if (!payload) {
             throw new UnauthorizedException('Invalid Authorization token');
         }
 
-        req.user = await this.userRepository.findById(payload.id);
-
+        req.user = await this.userRepository.findById(payload.userId);
         if (!req.user) {
             throw new UnauthorizedException('Access token valid, but user not found!');
         }

@@ -10,6 +10,6 @@ export interface IAuth {
 }
 
 export interface IAuthJwt {
-    id: string;
+    userId: string;
     exp: number;
 }

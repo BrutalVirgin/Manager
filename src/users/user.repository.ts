@@ -8,31 +8,15 @@ import { EUsersRole } from '../interfaces/interfaces';
 export class UserRepository  implements OnModuleInit {
     constructor (
         @InjectModel('User') private userModel: Model<UserDo>,
-
-        // private userModel: Model<UserDo>,
-    ) {
-    }
+    ) {}
 
     public async onModuleInit () {
          await this.userModel.find();
-
-        // const userIds = users.map((user) => {
-        //     return user._id;
-        // });
-
-        // await this.userModel.updateMany({ _id: { $in: userIds } }, { $set: { socketIds: [] } });
     }
 
     public async findOne (options: Partial<UserEntity>): Promise<UserEntity> {
-        // eslint-disable-next-line no-useless-catch
-        try {
-            const user = await this.userModel.findOne(options);
-            return user && this.toEntity(user.toObject());
-        }
-    catch (e) {
-        throw e;
-        }
-
+        const user = await this.userModel.findOne(options);
+        return user && this.toEntity(user.toObject());
     }
 
     public async findById (id: string): Promise<UserEntity | null> {
@@ -47,9 +31,27 @@ export class UserRepository  implements OnModuleInit {
         });
     }
 
+   public async findUsersByBoss (subordinates:string[]) : Promise<UserEntity[]> {
+       const users = await this.userModel.find({ '_id': { $in: subordinates } });
+       return users && users.map((user) => {
+           return this.toEntity(user.toObject());
+       });
+   }
+
+   public async findAll () : Promise<UserEntity[]> {
+       const users = await this.userModel.find();
+       return users && users.map((user) => {
+           return this.toEntity(user.toObject());
+       });
+   }
+
     public async create (options: UserEntity): Promise<UserEntity> {
             const user = await this.userModel.create(options);
             return user && this.toEntity(user.toObject());
+    }
+
+    public async update (user: UserEntity): Promise<any> {
+            await this.userModel.updateOne({ _id: user._id }, (user));
     }
 
     public toEntity (userDo: UserDo) : UserEntity {
