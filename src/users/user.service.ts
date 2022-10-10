@@ -95,6 +95,12 @@ private readonly userRepository: UserRepository,
             throw new HttpException('The subordinate is already under the supervision of the new boss', HttpStatus.BAD_REQUEST);
         }
 
+        const index = user.subordinates.indexOf(data.subordinateId);
+        if (index > -1) {
+            user.subordinates.splice(index, 1);
+        }
+        await this.userRepository.update(user);
+
         newBoss.subordinates.push(data.subordinateId);
         await this.userRepository.update(newBoss);
         return newBoss;
