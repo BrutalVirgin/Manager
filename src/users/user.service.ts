@@ -1,9 +1,10 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dtos/createUserDto';
 import { UserRepository } from './user.repository';
 import { UserEntity } from './user.entity';
 import { EUsersRole } from '../interfaces/interfaces';
 import { Types } from 'mongoose';
+
 
 @Injectable()
 export class UserService {
@@ -20,7 +21,7 @@ private readonly userRepository: UserRepository,
            else if ((data.role === EUsersRole.user || data.role === EUsersRole.administrator) && data.subordinates) {
                throw new HttpException(`${data.role} cannot have subordinates`, HttpStatus.BAD_REQUEST);
            }
-           else if (data.role === EUsersRole.boss && data.subordinates.length < 1) {
+           else if (data.role === EUsersRole.boss && (!data.subordinates || data.subordinates.length < 1)) {
                throw new HttpException('Boss must have at least 1 subordinate', HttpStatus.BAD_REQUEST);
            }
            else {
@@ -34,18 +35,19 @@ private readonly userRepository: UserRepository,
     }
 
     async checkIds (arr:string[]) {
-        arr.map(async (id) => {
+        arr.map((id) => {
             const validObjectId = Types.ObjectId.isValid(id);
             if (!validObjectId) {
-                new HttpException('Invalid ObjectId, provide correct id`s', HttpStatus.BAD_REQUEST);
-            }
-
-            const foundUser = await this.userRepository.findById(id);
-            if (!foundUser) {
-                throw new HttpException(`User with id ${id} not found, check your request and try again`, HttpStatus.NOT_FOUND);
+               throw new HttpException('Invalid ObjectId, provide correct id`s', HttpStatus.BAD_REQUEST);
             }
         });
+
+      const users =  await this.userRepository.findMany(arr);
+      if (users.length < arr.length) {
+          throw new HttpException('One or more users with the id you provided does not exist or does not have user rights', HttpStatus.NOT_FOUND);
+      }
     }
+
 
     // async createUser (data: CreateUserDto) : Promise<UserEntity> {
     // if (data.subordinates) {

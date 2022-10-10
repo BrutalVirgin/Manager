@@ -3,6 +3,7 @@ import { UserDo } from '../shemas/user.do';
 import { UserEntity } from './user.entity';
 import { OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { EUsersRole } from '../interfaces/interfaces';
 
 export class UserRepository  implements OnModuleInit {
     constructor (
@@ -37,6 +38,13 @@ export class UserRepository  implements OnModuleInit {
     public async findById (id: string): Promise<UserEntity | null> {
         const user = await this.userModel.findById(id);
         return user && this.toEntity(user.toObject());
+    }
+
+    public async findMany (ids:string[]): Promise<UserEntity[] | null> {
+        const users = await this.userModel.find({ '_id': { $in: ids }, role: EUsersRole.user });
+        return users && users.map((user) => {
+            return this.toEntity(user.toObject());
+        });
     }
 
     public async create (options: UserEntity): Promise<UserEntity> {
