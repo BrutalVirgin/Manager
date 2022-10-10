@@ -8,7 +8,6 @@ export const UserSchema = new mongoose.Schema<UserDo>({
     passwordSalt: { type: String, required: true },
     subordinates: { type: [String] },
     role:         { type: String, enum: Object.values(EUsersRole), required: true },
-
 }, {
     versionKey: false,
     timestamps: true,

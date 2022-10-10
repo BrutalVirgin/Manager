@@ -10,6 +10,7 @@ export class UserEntity {
 
     @Exclude()
     public passwordHash: string;
+
     @Exclude()
     public passwordSalt: string;
     public subordinates?: string[] | null;

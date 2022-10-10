@@ -7,7 +7,6 @@ import { Types } from 'mongoose';
 import { UserListOutDto } from './dtos/userListOutDto';
 import { ChangeBossDto } from './dtos/changeBossDto';
 
-
 @Injectable()
 export class UserService {
     constructor (

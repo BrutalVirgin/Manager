@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { UserDo } from '../shemas/user.do';
+import { UserDo } from '../schemas/user.do';
 import { UserEntity } from './user.entity';
 import { OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';

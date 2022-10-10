@@ -16,6 +16,5 @@ export class UserDo {
         this.passwordSalt = init.passwordSalt || null;
         this.subordinates = init.subordinates || null;
         this.role = init.role || null;
-
     }
 }
